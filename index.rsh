@@ -2,7 +2,7 @@
 
 const Player = {
     getFingers: Fun([], UInt),
-    seeFingers: Fun([UInt], Null), 
+    // seeFingers: Fun([UInt], Null), 
     getGuess: Fun([], UInt),
     // seeRoudWinner: Fun([UInt], Null),
     seeResult: Fun([UInt], Null),
@@ -25,16 +25,16 @@ export const main = Reach.App(() => {
     Erin.publish(fingersErin);
     commit();
 
-    Erin.only(() => {
-        const guessErin = declassify(interact.getGuess());
-    });
-    Erin.publish(guessErin);
-    commit();
-
     Lola.only(() => {
         const fingersLola = declassify(interact.getFingers());
     });
     Lola.publish(fingersLola);
+    commit();
+
+    Erin.only(() => {
+        const guessErin = declassify(interact.getGuess());
+    });
+    Erin.publish(guessErin);
     commit();
 
     Lola.only(() => {
@@ -43,17 +43,16 @@ export const main = Reach.App(() => {
     Lola.publish(guessLola);
 
     const playedFingers = (fingersErin + fingersLola);
+    const result = guessErin == playedFingers ? 0 :
+                    guessLola == playedFingers ? 1 :
+                                                 2;
     commit();
 
-    each([Erin, Lola], () => {
-        interact.seeFingers(playedFingers);
-    });
-
     // each([Erin, Lola], () => {
-    //     interact.seeRoudWinner(playedFingers);
+    //     interact.seeRoudWinner(outcome);
     // });
 
     each([Erin, Lola], () => {
-        interact.seeResult(playedFingers);
+        interact.seeResult(result);
     });
 });

@@ -11,5 +11,30 @@ const ctcLola = accLola.contract(backend, ctcErin.getInfo());
 
 const FINGERS = [0, 1, 2, 3, 4, 5];
 const GUESS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
-const POINTS = [0, 0]; // points for erin and lola respectfully 
-const RESULT = ['Erin wins', 'Draw', 'Lola wins'];
+// const POINTS = [pointsErin, pointsLola] = [0,0]; 
+const RESULT = ['Erin wins', 'Lola wins', 'Draw'];
+
+const Player = (Who) => ({
+    getFingers: () => {
+        const fingers = Math.floor(Math.random() * 5);
+        console.log(`${Who} played ${FINGERS[fingers]} fingers`);
+        return fingers;
+    },
+    getGuess: () => {
+        const guess = Math.floor(Math.random() * 10);
+        console.log(`${Who} guessed ${GUESS[guess]} fingers played`);
+        return guess;
+    },
+    seeResult: (result) => {
+        console.log(`${Who} saw outcome ${RESULT[result]}`);
+    },
+});
+
+await Promise.all([
+    ctcErin.p.Erin({
+        ...Player('Erin'),
+    }),
+    ctcLola.p.Lola({
+        ...Player('Lola'),
+    }),
+]);
