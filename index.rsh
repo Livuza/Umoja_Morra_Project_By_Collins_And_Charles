@@ -2,33 +2,38 @@
 
 const Player = {
     getFingers: Fun([], UInt),
-    // seeFingers: Fun([UInt], Null), 
     getGuess: Fun([], UInt),
-    // seeRoudWinner: Fun([UInt], Null),
+    // seeRoudWinner: Fun([UInt], Null), for best of three
     seeResult: Fun([UInt], Null),
 };
 
 export const main = Reach.App(() => {
     const Erin = Participant('Erin', {
         ...Player,
+        wager: UInt,
     });
 
     const Lola = Participant('Lola', {
         ...Player,
+        acceptWager: Fun([UInt], Null),
     });
 
     init();
 
     Erin.only(() => {
+        const wager = declassify(interact.wager);
         const fingersErin = declassify(interact.getFingers());
     });
-    Erin.publish(fingersErin);
+    Erin.publish(wager, fingersErin)
+        .pay(wager);
     commit();
 
     Lola.only(() => {
+        interact.acceptWager(wager);
         const fingersLola = declassify(interact.getFingers());
     });
-    Lola.publish(fingersLola);
+    Lola.publish(fingersLola)
+        .pay(wager);
     commit();
 
     Erin.only(() => {
@@ -44,12 +49,19 @@ export const main = Reach.App(() => {
 
     const playedFingers = (fingersErin + fingersLola);
     const result = guessErin == playedFingers ? 0 :
-                    guessLola == playedFingers ? 1 :
-                                                 2;
+                   guessLola == playedFingers ? 1 :
+                                                2;
+    const            [forErin, forLola] =
+       result == 0 ? [       2,      0] :
+       result == 1 ? [       0,      2] :
+                     [       1,      1];
+    transfer(forErin * wager).to(Erin);
+    transfer(forLola * wager).to(Lola);
     commit();
 
+    // *** This will be used for seeing winner each round ***
     // each([Erin, Lola], () => {
-    //     interact.seeRoudWinner(outcome);
+    //     interact.seeRoudWinner(result);
     // });
 
     each([Erin, Lola], () => {
