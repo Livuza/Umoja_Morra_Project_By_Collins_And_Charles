@@ -1,6 +1,7 @@
 'reach 0.1';
 
 const [isResult, ERIN_WINS, LOLA_WINS, DRAW] = makeEnum(3);
+
 const roundWinner = (guessErin, guessLola, playedFingers) => {
     if (guessErin == guessLola) { 
         return DRAW;
