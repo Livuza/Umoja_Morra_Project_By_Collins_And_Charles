@@ -20,7 +20,7 @@ const RESULT = ['Erin wins', 'Lola wins', 'Draw'];
 
 const Player = (Who) => ({
     ...stdlib.hasRandom,
-    getFingers: () => {
+    getFingers: async () => {
         const fingers = Math.floor(Math.random() * 5);
         (fingers === 1) ? 
         console.log(`${Who} played ${FINGERS[fingers]} finger`) :
@@ -28,7 +28,7 @@ const Player = (Who) => ({
         if ( Math.random() <= 0.01 ) {
             for ( let i = 0; i < 10; i++ ) {
                 console.log(`Still waiting for ${Who}...`);
-                await stdlib.wait(1);
+                await stdlib.await(1);
             }
         }
         return fingers;
@@ -38,11 +38,19 @@ const Player = (Who) => ({
         console.log(`${Who} guessed ${GUESS[guess]} fingers played`);
         return guess;
     },
-    seeRoundWinner: (roundResult, round, pointsErin, pointsLola) => {
-        console.log(`${Who} saw outcome ${RESULT[roundResult]} round ${round}. Erin: ${pointsErin} vs Lola: ${pointsLola}`);
+    seeRound: (round) => {
+        round == 1 
+        ? console.log(`--- New best-of-three game starting ---`) 
+        : console.log(`\nRound ${round} starting...`);
     },
-    seeResult: (result) => {
-        console.log(`${Who} saw outcome ${RESULT[result]}`);
+    // seeScore: () => {
+
+    // },
+    seeRoundWinner: (roundResult) => {
+        console.log(`${Who} saw round result: ${RESULT[roundResult]}`);
+    },
+    seeFinalResult: (result) => {
+        console.log(`${Who} saw FINAL RESULT: ${RESULT[result]}`);
     },
     informTimeout: () => {
         console.log(`${Who} saw a timeout`);
@@ -57,12 +65,12 @@ await Promise.all([
     ctcLola.p.Lola({
         ...Player('Lola'),
         acceptWager: (amt) => { 
-            console.log(`Lola agrees to pay ${fmt(amt)}`);
+            console.log(`Lola agrees to pay ${fmt(amt)}\n`);
         },
     }),
 ]);
 
 const endBalanceErin = await getBalance(accErin);
 const endBalanceLola = await getBalance(accLola);
-console.log(`Ein started with ${startBalanceErin} and now has ${endBalanceErin}`);
+console.log(`Erin started with ${startBalanceErin} and now has ${endBalanceErin}`);
 console.log(`Lola started with ${startBalanceLola} and now has ${endBalanceLola}`);
