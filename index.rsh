@@ -110,8 +110,11 @@ export const main = Reach.App(() => {
     while ( gameVars.round < 4 ) {
         commit();
 
-        Erin.only(() => {
+        each([Erin, Lola], () => {
             interact.seeRound(gameVars.round);
+        });
+
+        Erin.only(() => {
             const _fingersErin = interact.getFingers();
             const [_commitFingersErin, _saltFingersErin] = makeCommitment(interact, _fingersErin);
             const commitFingersErin = declassify(_commitFingersErin);

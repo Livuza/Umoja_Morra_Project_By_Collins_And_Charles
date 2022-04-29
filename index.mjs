@@ -2,14 +2,15 @@ import { loadStdlib, ask } from '@reach-sh/stdlib';
 import * as backend from './build/index.main.mjs';
 const stdlib = loadStdlib();
 
-const isGameCreator = await ask.ask(`Are you creating a new game?`, ask.yesno);
-const name = await ask.ask(`Enter your name`, String);
-
-console.log(`What a great name! Welcome to Morra, ${name} :)`);
+const isGameCreator = await ask.ask(`Welcome to Morra! Are you creating a new game?`, ask.yesno);
+const who = isGameCreator 
+    ? 'Erin' 
+    : 'Lola';
+console.log(`You are playing as ${who}`);
 
 let acc = null;
 const createAcc = await ask.ask(`Would you like to create a new account?`, ask.yesno);
-if(createAcc) {
+if (createAcc) {
     acc = await stdlib.newTestAccount(stdlib.parseCurrency(1000));
 } else {
     const secret = await ask.ask(`What is your secret?`, (x => x));
@@ -32,7 +33,7 @@ const getBalance = async () => fmt(await stdlib.balanceOf(acc));
 const balanceBefore = await getBalance();
 console.log(`Your balance is ${balanceBefore}`);
 
-const interact = {...stdlib.hasrandom};
+const interact = {...stdlib.hasRandom};
 
 interact.informTimeout = () => {
     console.log(`There was a timeout`);
@@ -49,77 +50,95 @@ if (isGameCreator) {
         if (!accepted) {
             process.exit(0);
         }
+    };
+};
+
+const FINGERS = ['zero', 'one', 'two', 'three', 'four', 'five'];
+const PLAYABLE_FINGERS = {
+    '0': 0, 'Zero': 0, 'zero': 0, 'none': 0,
+    '1': 1, 'One': 1, 'one': 1,
+    '2': 2, 'Two': 2, 'two': 2,
+    '3': 3, 'Three': 3, 'three': 3,
+    '4': 4, 'Four': 4, 'four': 4,
+    '5': 5, 'Five': 5, 'five': 5,
+};
+const GUESS = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten']; 
+const POSSIBLE_GUESSES = {
+    '0': 0, 'Zero': 0, 'zero': 0, 'none': 0,
+    '1': 1, 'One': 1, 'one': 1,
+    '2': 2, 'Two': 2, 'two': 2,
+    '3': 3, 'Three': 3, 'three': 3,
+    '4': 4, 'Four': 4, 'four': 4,
+    '5': 5, 'Five': 5, 'five': 5,
+    '6': 6, 'Six': 6, 'six': 6,
+    '7': 7, 'Seven': 7, 'seven': 7,
+    '8': 8, 'Eight': 8, 'eight': 8,
+    '9': 9, 'Nine': 9, 'nine': 9,
+    '10': 10, 'Ten': 10, 'ten': 10,
+};
+const RESULT = ['Erin wins', 'Lola wins', 'Draw'];
+
+interact.getFingers = async () => {
+    const fingers = await ask.ask(`How many fingers do you want to throw? (One hand only)`, (x) => {
+        const thrownFingers = PLAYABLE_FINGERS[x];
+        if ( thrownFingers === undefined ) {
+            throw error(`Not a valid amount of fingers`);
+        } 
+        if ( thrownFingers > 5 ) {
+            throw error(`Only one hand playable, silly! Try again.`);
+        }
+        return thrownFingers;
+    });
+    (fingers === 1) 
+        ? console.log(`You played ${FINGERS[fingers]} finger`) 
+        : console.log(`You played ${FINGERS[fingers]} fingers`);
+    return fingers;
+};
+
+interact.getGuess = async () => {
+    const guess = await ask.ask(`Take a guess the total amount of fingers`, (x) => {
+        const givenGuess = POSSIBLE_GUESSES[x];
+        if ( givenGuess === undefined ) {
+            throw error(`Not a valid amount guess`);
+        }
+        return givenGuess;
+    });
+    (guess === 1) 
+        ? console.log(`You guessed ${GUESS[guess]} finger`) 
+        : console.log(`You guessed ${GUESS[guess]} fingers`);
+    return guess;
+};
+
+interact.seeRound = async (round) => {
+    round == 1 
+        ? console.log(`\n--- New best-of-three game ---`) 
+        : console.log(`\nRound ${round} starting...`);
+};
+
+interact.seeRoundWinner = async (roundResult) => {
+    if ((RESULT[roundResult] == 'Erin wins' && isGameCreator) || (RESULT[roundResult] == 'Lola wins' && !isGameCreator)) {
+        console.log(`You won this round, nice :)`);
+    } else if ((RESULT[roundResult] == 'Erinwins' && !isGameCreator) || (RESULT[roundResult] == 'Lola wins' && isGameCreator)) {
+        console.log(`You lost this round :(`);
+    } else {
+        console.log(`This round was a draw!`);
     }
-}
-// const startingBalance = stdlib.parseCurrency(100);
-// const accErin = await stdlib.newTestAccount(startingBalance);
-// const accLola = await stdlib.newTestAccount(startingBalance);
+};
 
-// const fmt = (x) => stdlib.formatCurrency(x, 4);
-// const getBalance = async (Who) => fmt(await stdlib.balanceOf(Who));
-// const startBalanceErin = await getBalance(accErin);
-// const startBalanceLola = await getBalance(accLola);
+interact.seeFinalResult = async (finalResult) => {
+    if ((RESULT[finalResult] == 'Erin wins' && isGameCreator) || (RESULT[finalResult] == 'Lola wins' && !isGameCreator)) {
+        console.log(`Congratulations! You won the game :)`);
+    } else if ((RESULT[finalResult] == 'Erin wins' && !isGameCreator) || (RESULT[finalResult] == 'Lola wins' && isGameCreator)) {
+        console.log(`Your opponent won the game! Better luck next time :(`);
+    } else {
+        console.log(`Game ends in a draw!`);
+    }
+};
 
-// const ctcErin = accErin.contract(backend);
-// const ctcLola = accLola.contract(backend, ctcErin.getInfo());
+const part = isGameCreator ? ctc.p.Erin : ctc.p.Lola;
+await part(interact);
 
-// const FINGERS = [0, 1, 2, 3, 4, 5];
-// const GUESS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; 
-// const RESULT = ['Erin wins', 'Lola wins', 'Draw'];
+const balanceAfter = await getBalance();
+console.log(`Your balance is now ${balanceAfter}`);
 
-// const Player = (Who) => ({
-//     ...stdlib.hasRandom,
-//     getFingers: async () => {
-//         const fingers = Math.floor(Math.random() * 5);
-//         (fingers === 1) ? 
-//         console.log(`${Who} played ${FINGERS[fingers]} finger`) :
-//         console.log(`${Who} played ${FINGERS[fingers]} fingers`);
-//         if ( Math.random() <= 0.01 ) {
-//             for ( let i = 0; i < 10; i++ ) {
-//                 console.log(`Still waiting for ${Who}...`);
-//                 await stdlib.await(1);
-//             }
-//         }
-//         return fingers;
-//     },
-//     getGuess: () => {
-//         const guess = Math.floor(Math.random() * 10);
-//         console.log(`${Who} guessed ${GUESS[guess]} fingers played`);
-//         return guess;
-//     },
-//     seeRound: (round) => {
-//         round == 1 
-//         ? console.log(`--- New best-of-three game starting ---`) 
-//         : console.log(`\nRound ${round} starting...`);
-//     },
-//     // seeScore: () => {
-
-//     // },
-//     seeRoundWinner: (roundResult) => {
-//         console.log(`${Who} saw round result: ${RESULT[roundResult]}`);
-//     },
-//     seeFinalResult: (result) => {
-//         console.log(`${Who} saw FINAL RESULT: ${RESULT[result]}`);
-//     },
-//     informTimeout: () => {
-//         console.log(`${Who} saw a timeout`);
-//       },
-// });
-
-// await Promise.all([
-//     ctcErin.p.Erin({
-//         ...Player('Erin'),
-//         wager: stdlib.parseCurrency(10),
-//     }),
-//     ctcLola.p.Lola({
-//         ...Player('Lola'),
-//         acceptWager: (amt) => { 
-//             console.log(`Lola agrees to pay ${fmt(amt)}\n`);
-//         },
-//     }),
-// ]);
-
-// const endBalanceErin = await getBalance(accErin);
-// const endBalanceLola = await getBalance(accLola);
-// console.log(`Erin started with ${startBalanceErin} and now has ${endBalanceErin}`);
-// console.log(`Lola started with ${startBalanceLola} and now has ${endBalanceLola}`);
+ask.done(); 
