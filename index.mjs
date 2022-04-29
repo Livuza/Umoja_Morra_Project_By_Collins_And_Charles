@@ -117,21 +117,22 @@ interact.seeRound = async (round) => {
 
 interact.seeRoundWinner = async (roundResult) => {
     if ((RESULT[roundResult] == 'Erin wins' && isGameCreator) || (RESULT[roundResult] == 'Lola wins' && !isGameCreator)) {
-        console.log(`You won this round, nice :)`);
-    } else if ((RESULT[roundResult] == 'Erinwins' && !isGameCreator) || (RESULT[roundResult] == 'Lola wins' && isGameCreator)) {
-        console.log(`You lost this round :(`);
+        console.log(`ROUND RESULT: You won this round, nice :)`);
+    } else if ((RESULT[roundResult] == 'Erin wins' && !isGameCreator) || (RESULT[roundResult] == 'Lola wins' && isGameCreator)) {
+        console.log(`ROUND RESULT: You lost this round :(`);
     } else {
-        console.log(`This round was a draw!`);
+        console.log(`ROUND RESULT: This round was a draw!`);
     }
 };
 
 interact.seeFinalResult = async (finalResult) => {
+    console.log(`\nGAME OVER`);
     if ((RESULT[finalResult] == 'Erin wins' && isGameCreator) || (RESULT[finalResult] == 'Lola wins' && !isGameCreator)) {
-        console.log(`Congratulations! You won the game :)`);
+        console.log(`Congratulations! You won the game :)\n`);
     } else if ((RESULT[finalResult] == 'Erin wins' && !isGameCreator) || (RESULT[finalResult] == 'Lola wins' && isGameCreator)) {
-        console.log(`Your opponent won the game! Better luck next time :(`);
+        console.log(`You lost the game :( Better luck next time!\n`);
     } else {
-        console.log(`Game ends in a draw!`);
+        console.log(`Game ends in a draw!\n`);
     }
 };
 
