@@ -61,7 +61,6 @@ const Player = {
     getFingers: Fun([], UInt),
     getGuess: Fun([], UInt),
     seeRound: Fun([UInt], Null),
-    // seeScore: Fun([Object{}], Null),
     seeRoundWinner: Fun([UInt], Null),
     seeFinalResult: Fun([UInt], Null),
     informTimeout: Fun([], Null),
@@ -118,15 +117,16 @@ export const main = Reach.App(() => {
             const _fingersErin = interact.getFingers();
             const [_commitFingersErin, _saltFingersErin] = makeCommitment(interact, _fingersErin);
             const commitFingersErin = declassify(_commitFingersErin);
-    
+
             const _guessErin = interact.getGuess();
-            const guessErin = declassify(_guessErin);
+            const [_commitGuessErin, _saltGuessErin] = makeCommitment(interact, _guessErin);
+            const commitGuessErin = declassify(_commitGuessErin);
         });
-        Erin.publish(commitFingersErin, guessErin)
+        Erin.publish(commitFingersErin, commitGuessErin)
             .timeout(relativeTime(DEADLINE), () => closeTo(Lola, informTimeout));
         commit();
     
-        unknowable(Lola, Erin(_fingersErin, _saltFingersErin));
+        unknowable(Lola, Erin(_fingersErin, _saltFingersErin, _guessErin, _saltGuessErin));
 
         Lola.only(() => {
             const _fingersLola = interact.getFingers();
@@ -142,10 +142,14 @@ export const main = Reach.App(() => {
         Erin.only(() => {
             const saltFingersErin = declassify(_saltFingersErin);
             const fingersErin = declassify(_fingersErin);
+
+            const saltGuessErin = declassify(_saltGuessErin);
+            const guessErin = declassify(_guessErin);
         });
-        Erin.publish(saltFingersErin, fingersErin)
+        Erin.publish(saltFingersErin, fingersErin, saltGuessErin, guessErin)
             .timeout(relativeTime(DEADLINE), () => closeTo(Lola, informTimeout));
         checkCommitment(commitFingersErin, saltFingersErin, fingersErin);
+        checkCommitment(commitGuessErin, saltGuessErin, guessErin);
 
         const roundResult = roundWinner(fingersErin, guessErin, fingersLola, guessLola);
 
