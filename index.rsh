@@ -100,12 +100,13 @@ export const main = Reach.App(() => {
 
     var gameVars = {
         round: 1,
+        result: DRAW,
         points: {
             pointsErin: 0,
             pointsLola: 0,
         },
     };
-    invariant( balance() == 2 * wager);
+    invariant( balance() == 2 * wager && isResult(gameVars.result) );
     while ( gameVars.round < 4 ) {
         commit();
 
@@ -160,6 +161,7 @@ export const main = Reach.App(() => {
         if (roundResult == ERIN_WINS) {
             gameVars = {
                 round: gameVars.round + 1, 
+                result: roundResult,
                 points: {
                     pointsErin: gameVars.points.pointsErin + 1,
                     pointsLola: gameVars.points.pointsLola,
@@ -169,6 +171,7 @@ export const main = Reach.App(() => {
         } else if (roundResult == LOLA_WINS) {
             gameVars = {
                 round: gameVars.round + 1, 
+                result: roundResult,
                 points: {
                     pointsErin: gameVars.points.pointsErin,
                     pointsLola: gameVars.points.pointsLola + 1,
@@ -178,6 +181,7 @@ export const main = Reach.App(() => {
         } else {
             gameVars = {
                 round: gameVars.round + 1, 
+                result: roundResult,
                 points: {
                     pointsErin: gameVars.points.pointsErin,
                     pointsLola: gameVars.points.pointsLola,
