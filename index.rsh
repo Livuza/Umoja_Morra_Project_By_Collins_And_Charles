@@ -60,9 +60,7 @@ const Player = {
     ...hasRandom,
     getFingers: Fun([], UInt),
     getGuess: Fun([], UInt),
-    seeRound: Fun([UInt], Null),
-    seeRoundWinner: Fun([UInt], Null),
-    seeFinalResult: Fun([UInt], Null),
+    seeOutcome: Fun([UInt], Null),
     informTimeout: Fun([], Null),
 };
 
@@ -98,21 +96,10 @@ export const main = Reach.App(() => {
     Lola.pay(wager)
         .timeout(relativeTime(DEADLINE), () => closeTo(Erin, informTimeout));
 
-    var gameVars = {
-        round: 1,
-        result: DRAW,
-        points: {
-            pointsErin: 0,
-            pointsLola: 0,
-        },
-    };
-    invariant( balance() == 2 * wager && isResult(gameVars.result) );
-    while ( gameVars.round < 4 ) {
+    var result = DRAW;
+    invariant( balance() == 2 * wager && isResult(result) );
+    while ( result == DRAW ) {
         commit();
-
-        each([Erin, Lola], () => {
-            interact.seeRound(gameVars.round);
-        });
 
         Erin.only(() => {
             const _fingersErin = interact.getFingers();
@@ -152,52 +139,15 @@ export const main = Reach.App(() => {
         checkCommitment(commitFingersErin, saltFingersErin, fingersErin);
         checkCommitment(commitGuessErin, saltGuessErin, guessErin);
 
-        const roundResult = roundWinner(fingersErin, guessErin, fingersLola, guessLola);
-
-        each([Erin, Lola], () => {
-            interact.seeRoundWinner(roundResult);
-        });
-        
-        if (roundResult == ERIN_WINS) {
-            gameVars = {
-                round: gameVars.round + 1, 
-                result: roundResult,
-                points: {
-                    pointsErin: gameVars.points.pointsErin + 1,
-                    pointsLola: gameVars.points.pointsLola,
-                },
-            }
-            continue;
-        } else if (roundResult == LOLA_WINS) {
-            gameVars = {
-                round: gameVars.round + 1, 
-                result: roundResult,
-                points: {
-                    pointsErin: gameVars.points.pointsErin,
-                    pointsLola: gameVars.points.pointsLola + 1,
-                },
-            }
-            continue;
-        } else {
-            gameVars = {
-                round: gameVars.round + 1, 
-                result: roundResult,
-                points: {
-                    pointsErin: gameVars.points.pointsErin,
-                    pointsLola: gameVars.points.pointsLola,
-                },
-            }
-            continue;
-        }
+        result = roundWinner(fingersErin, guessErin, fingersLola, guessLola);
+        continue;
     };
-    
-    const finalResult = gameWinner(gameVars.points.pointsErin, gameVars.points.pointsLola);    
 
-    assert(finalResult == ERIN_WINS || finalResult == LOLA_WINS || finalResult == DRAW);
-    if (finalResult == DRAW) {
+    assert(result == ERIN_WINS || result == LOLA_WINS || result == DRAW);
+    if (result == DRAW) {
         transfer(1 * wager).to(Erin);
         transfer(1 * wager).to(Lola);
-    } else if (finalResult == ERIN_WINS) {
+    } else if (result == ERIN_WINS) {
         transfer(2 * wager).to(Erin);
     } else {
         transfer(2 * wager).to(Lola);
@@ -205,6 +155,6 @@ export const main = Reach.App(() => {
     commit();
 
     each([Erin, Lola], () => {
-        interact.seeFinalResult(finalResult);
+        interact.seeOutcome(result);
     });
 });
