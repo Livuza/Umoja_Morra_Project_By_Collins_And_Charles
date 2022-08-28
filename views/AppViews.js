@@ -8,7 +8,7 @@ exports.Wrapper = class extends React.Component {
     return (
       <div className="App">
         <header className="App-header" id="root">
-          <h1>Morra</h1>
+          <h1>Welcome to Morra developed by Collins and Charles... </h1>
           {content}
         </header>
       </div>
@@ -20,8 +20,9 @@ exports.ConnectAccount = class extends React.Component {
   render() {
     return (
       <div>
-        Please wait while we connect to your account
-        If this takes more than a few seconds, there may be something wrong
+        Please be patient
+        <br/> we are connecting to your account....
+        <br/> Will take a few seconds
       </div>
     )
   }
@@ -33,11 +34,11 @@ exports.FundAccount = class extends React.Component {
     const amt = (this.state || {}).amt || defaultFundAmt;
     return (
       <div>
-        <h2>Fund account</h2>
+        <h2>Fund your account</h2>
         <br />
         Balance: {bal} {standardUnit}
         <hr />
-        Would you like to fund your account with additional {standardUnit}?
+        Do you like to fund your account with additional {standardUnit}?
         <br />
         (This only works on certain devnets)
         <br />
@@ -58,7 +59,7 @@ exports.DeployerOrAttacher = class extends React.Component {
     const {parent} = this.props;
     return (
       <div>
-        Who are you?
+        Who are you playing as?
         <br />
         <div className='who-group'>
           <p>
@@ -66,14 +67,12 @@ exports.DeployerOrAttacher = class extends React.Component {
               className='choice-button'
               onClick={() => parent.selectDeployer()}
             >Deployer</button>
-            {/* <br /> Set wager, deploy contract. */}
           </p>
           <p>
             <button
               className='choice-button'
               onClick={() => parent.selectAttacher()}
             >Attacher</button>
-            {/* <br /> Attach to contract. */}
           </p>
         </div>
       </div>

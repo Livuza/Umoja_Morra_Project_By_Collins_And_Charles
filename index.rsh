@@ -1,60 +1,51 @@
 'reach 0.1';
 
-const DEADLINE = 10;
-const [isResult, ERIN_WINS, LOLA_WINS, DRAW] = makeEnum(3);
+const [gameResult, COLLINS_WINS_GAME, CHARLES_WINS_GAME, DRAW] = makeEnum(3);
 
-const roundWinner = (fingersErin, guessErin, fingersLola, guessLola) => {
-    const playedFingers = fingersErin + fingersLola;
 
-    if (guessErin == playedFingers) {
-        if (guessLola == playedFingers) {
-            return DRAW;
-        } else {
-            return ERIN_WINS;
-        }
-    } else if (guessErin != playedFingers) {
-        if (guessLola != playedFingers){
-            return DRAW;
-        } else {
-            return LOLA_WINS;
-        }
+const winnerOfAnyRound = (fingersThrownByCollins, fingersGuessedByCollins, fingersThrownByCharles, fingersGuessedByCharles) => {
+    const totalAmountFingersPlayed = fingersThrownByCollins + fingersThrownByCharles;
+    if (totalAmountFingersPlayed == fingersGuessedByCollins && totalAmountFingersPlayed !== fingersGuessedByCharles) {
+        return COLLINS_WINS_GAME;
+    } else if (totalAmountFingersPlayed == fingersGuessedByCharles && totalAmountFingersPlayed !== fingersGuessedByCollins ) {
+        return CHARLES_WINS_GAME;
     } else {
         return DRAW;
     }
 };
 
-const gameWinner = (pointsErin, pointsLola) => {
-    if (pointsErin > pointsLola) {
-        return ERIN_WINS;
-    } else if (pointsLola > pointsErin) {
-        return LOLA_WINS;
+const winnerOfTheGame = (pointsCollins, pointsCharles) => {
+    if (pointsCollins > pointsCharles) {
+        return COLLINS_WINS_GAME;
+    } else if (pointsCharles > pointsCollins) {
+        return CHARLES_WINS_GAME;
     } else {
         return DRAW;
     }
 };
 
-assert(roundWinner(1, 3, 2, 6) == ERIN_WINS);
-assert(roundWinner(1, 6, 2, 3) == LOLA_WINS);
-assert(roundWinner(1, 6, 2, 6) == DRAW);
-assert(roundWinner(1, 3, 1, 3) == DRAW);
-assert(gameWinner(2, 0) == ERIN_WINS);
-assert(gameWinner(2, 1) == ERIN_WINS);
-assert(gameWinner(1, 1) == DRAW); 
+assert(winnerOfAnyRound(1, 3, 2, 6) == COLLINS_WINS_GAME);
+assert(winnerOfAnyRound(1, 6, 2, 3) == CHARLES_WINS_GAME);
+assert(winnerOfAnyRound(1, 6, 2, 6) == DRAW);
+assert(winnerOfAnyRound(1, 3, 1, 3) == DRAW);
+assert(winnerOfTheGame(2, 0) == COLLINS_WINS_GAME);
+assert(winnerOfTheGame(2, 1) == COLLINS_WINS_GAME);
+assert(winnerOfTheGame(1, 1) == DRAW); 
 
-forall(UInt, fingersErin => 
-    forall(UInt, fingersLola =>
-        forall(UInt, guessErin =>
-            forall(UInt, guessLola => 
-                assert(isResult(roundWinner(fingersErin, guessErin, fingersLola, guessLola)))))));
+forall(UInt, fingersThrownByCollins => 
+    forall(UInt, fingersThrownByCharles =>
+        forall(UInt, fingersGuessedByCollins =>
+            forall(UInt, fingersGuessedByCharles => 
+                assert(gameResult(winnerOfAnyRound(fingersThrownByCollins, fingersGuessedByCollins, fingersThrownByCharles, fingersGuessedByCharles)))))));
 
-forall(UInt, (fingersErin) => 
-    forall(UInt, (fingersLola) =>
+forall(UInt, (fingersThrownByCollins) => 
+    forall(UInt, (fingersThrownByCharles) =>
         forall(UInt, (guess) =>
-            assert(roundWinner(fingersErin, guess, fingersLola, guess) == DRAW))));
+            assert(winnerOfAnyRound(fingersThrownByCollins, guess, fingersThrownByCharles, guess) == DRAW))));
 
-forall(UInt, pointsErin => 
-    forall(UInt, pointsLola => 
-        assert(isResult(gameWinner(pointsErin, pointsLola)))));
+forall(UInt, pointsCollins => 
+    forall(UInt, pointsCharles => 
+        assert(gameResult(winnerOfTheGame(pointsCollins, pointsCharles)))));
 
 const Player = {
     ...hasRandom,
@@ -64,13 +55,17 @@ const Player = {
     informTimeout: Fun([], Null),
 };
 
+
+const deadline = 100
+
+
 export const main = Reach.App(() => {
-    const Erin = Participant('Erin', {
+    const Collins = Participant('Collins', {
         ...Player,
         wager: UInt,
     });
 
-    const Lola = Participant('Lola', {
+    const Charles = Participant('Charles', {
         ...Player,
         acceptWager: Fun([UInt], Null),
     });
@@ -78,83 +73,83 @@ export const main = Reach.App(() => {
     init();
 
     const informTimeout = () => {
-        each([Erin, Lola], () => {
+        each([Collins, Charles], () => {
             interact.informTimeout();
         });
     };
 
-    Erin.only(() => {
+    Collins.only(() => {
         const wager = declassify(interact.wager);
     });
-    Erin.publish(wager)
+    Collins.publish(wager)
         .pay(wager);
     commit();
 
-    Lola.only(() => {
+    Charles.only(() => {
         interact.acceptWager(wager);
     });
-    Lola.pay(wager)
-        .timeout(relativeTime(DEADLINE), () => closeTo(Erin, informTimeout));
+    Charles.pay(wager)
+        .timeout(relativeTime(deadline), () => closeTo(Collins, informTimeout));
 
     var result = DRAW;
-    invariant( balance() == 2 * wager && isResult(result) );
+    invariant( balance() == 2 * wager && gameResult(result) );
     while ( result == DRAW ) {
         commit();
 
-        Erin.only(() => {
-            const _fingersErin = interact.getFingers();
-            const [_commitFingersErin, _saltFingersErin] = makeCommitment(interact, _fingersErin);
-            const commitFingersErin = declassify(_commitFingersErin);
+        Collins.only(() => {
+            const _fingersThrownByCollins = interact.getFingers();
+            const [_commitfingersThrownByCollins, _saltfingersThrownByCollins] = makeCommitment(interact, _fingersThrownByCollins);
+            const commitfingersThrownByCollins = declassify(_commitfingersThrownByCollins);
 
-            const _guessErin = interact.getGuess();
-            const [_commitGuessErin, _saltGuessErin] = makeCommitment(interact, _guessErin);
-            const commitGuessErin = declassify(_commitGuessErin);
+            const _fingersGuessedByCollins = interact.getGuess();
+            const [_commitfingersGuessedByCollins, _saltfingersGuessedByCollins] = makeCommitment(interact, _fingersGuessedByCollins);
+            const commitfingersGuessedByCollins = declassify(_commitfingersGuessedByCollins);
         });
-        Erin.publish(commitFingersErin, commitGuessErin)
-            .timeout(relativeTime(DEADLINE), () => closeTo(Lola, informTimeout));
+        Collins.publish(commitfingersThrownByCollins, commitfingersGuessedByCollins)
+            .timeout(relativeTime(deadline), () => closeTo(Charles, informTimeout));
         commit();
     
-        unknowable(Lola, Erin(_fingersErin, _saltFingersErin, _guessErin, _saltGuessErin));
+        unknowable(Charles, Collins(_fingersThrownByCollins, _saltfingersThrownByCollins, _fingersGuessedByCollins, _saltfingersGuessedByCollins));
 
-        Lola.only(() => {
-            const _fingersLola = interact.getFingers();
-            const fingersLola = declassify(_fingersLola);
+        Charles.only(() => {
+            const _fingersThrownByCharles = interact.getFingers();
+            const fingersThrownByCharles = declassify(_fingersThrownByCharles);
     
-            const _guessLola = interact.getGuess();
-            const guessLola = declassify(_guessLola);
+            const _fingersGuessedByCharles = interact.getGuess();
+            const fingersGuessedByCharles = declassify(_fingersGuessedByCharles);
         });
-        Lola.publish(fingersLola, guessLola)
-            .timeout(relativeTime(DEADLINE), () => closeTo(Erin, informTimeout));
+        Charles.publish(fingersThrownByCharles, fingersGuessedByCharles)
+            .timeout(relativeTime(deadline), () => closeTo(Collins, informTimeout));
         commit();
 
-        Erin.only(() => {
-            const saltFingersErin = declassify(_saltFingersErin);
-            const fingersErin = declassify(_fingersErin);
+        Collins.only(() => {
+            const saltfingersThrownByCollins = declassify(_saltfingersThrownByCollins);
+            const fingersThrownByCollins = declassify(_fingersThrownByCollins);
 
-            const saltGuessErin = declassify(_saltGuessErin);
-            const guessErin = declassify(_guessErin);
+            const saltfingersGuessedByCollins = declassify(_saltfingersGuessedByCollins);
+            const fingersGuessedByCollins = declassify(_fingersGuessedByCollins);
         });
-        Erin.publish(saltFingersErin, fingersErin, saltGuessErin, guessErin)
-            .timeout(relativeTime(DEADLINE), () => closeTo(Lola, informTimeout));
-        checkCommitment(commitFingersErin, saltFingersErin, fingersErin);
-        checkCommitment(commitGuessErin, saltGuessErin, guessErin);
+        Collins.publish(saltfingersThrownByCollins, fingersThrownByCollins, saltfingersGuessedByCollins, fingersGuessedByCollins)
+            .timeout(relativeTime(deadline), () => closeTo(Charles, informTimeout));
+        checkCommitment(commitfingersThrownByCollins, saltfingersThrownByCollins, fingersThrownByCollins);
+        checkCommitment(commitfingersGuessedByCollins, saltfingersGuessedByCollins, fingersGuessedByCollins);
 
-        result = roundWinner(fingersErin, guessErin, fingersLola, guessLola);
+        result = winnerOfAnyRound(fingersThrownByCollins, fingersGuessedByCollins, fingersThrownByCharles, fingersGuessedByCharles);
         continue;
     };
 
-    assert(result == ERIN_WINS || result == LOLA_WINS || result == DRAW);
+    assert(result == COLLINS_WINS_GAME || result == CHARLES_WINS_GAME || result == DRAW);
     if (result == DRAW) {
-        transfer(1 * wager).to(Erin);
-        transfer(1 * wager).to(Lola);
-    } else if (result == ERIN_WINS) {
-        transfer(2 * wager).to(Erin);
+        transfer(1 * wager).to(Collins);
+        transfer(1 * wager).to(Charles);
+    } else if (result == COLLINS_WINS_GAME) {
+        transfer(2 * wager).to(Collins);
     } else {
-        transfer(2 * wager).to(Lola);
+        transfer(2 * wager).to(Charles);
     }
     commit();
 
-    each([Erin, Lola], () => {
+    each([Collins, Charles], () => {
         interact.seeOutcome(result);
     });
 });

@@ -4,8 +4,8 @@ const stdlib = loadStdlib();
 
 const isGameCreator = await ask.ask(`Welcome to Morra! Are you creating a new game?`, ask.yesno);
 const who = isGameCreator 
-    ? 'Erin' 
-    : 'Lola';
+    ? 'Collins' 
+    : 'Charles';
 console.log(`You are playing as ${who}`);
 
 let acc = null;
@@ -76,7 +76,7 @@ const POSSIBLE_GUESSES = {
     '9': 9, 'Nine': 9, 'nine': 9,
     '10': 10, 'Ten': 10, 'ten': 10,
 };
-const RESULT = ['Erin wins', 'Lola wins', 'Draw'];
+const RESULT = ['Collins wins', 'Charles wins', 'Draw'];
 
 interact.getFingers = async () => {
     const fingers = await ask.ask(`How many fingers do you want to throw? (One hand only)`, (x) => {
@@ -116,9 +116,9 @@ interact.seeRound = async (round) => {
 };
 
 interact.seeRoundWinner = async (roundResult) => {
-    if ((RESULT[roundResult] == 'Erin wins' && isGameCreator) || (RESULT[roundResult] == 'Lola wins' && !isGameCreator)) {
+    if ((RESULT[roundResult] == 'Collins wins' && isGameCreator) || (RESULT[roundResult] == 'Charles wins' && !isGameCreator)) {
         console.log(`ROUND RESULT: You won this round, nice :)`);
-    } else if ((RESULT[roundResult] == 'Erin wins' && !isGameCreator) || (RESULT[roundResult] == 'Lola wins' && isGameCreator)) {
+    } else if ((RESULT[roundResult] == 'Collins wins' && !isGameCreator) || (RESULT[roundResult] == 'Charles wins' && isGameCreator)) {
         console.log(`ROUND RESULT: You lost this round :(`);
     } else {
         console.log(`ROUND RESULT: This round was a draw!`);
@@ -127,16 +127,16 @@ interact.seeRoundWinner = async (roundResult) => {
 
 interact.seeFinalResult = async (finalResult) => {
     console.log(`\nGAME OVER`);
-    if ((RESULT[finalResult] == 'Erin wins' && isGameCreator) || (RESULT[finalResult] == 'Lola wins' && !isGameCreator)) {
+    if ((RESULT[finalResult] == 'Collins wins' && isGameCreator) || (RESULT[finalResult] == 'Charles wins' && !isGameCreator)) {
         console.log(`Congratulations! You won the game :)\n`);
-    } else if ((RESULT[finalResult] == 'Erin wins' && !isGameCreator) || (RESULT[finalResult] == 'Lola wins' && isGameCreator)) {
+    } else if ((RESULT[finalResult] == 'Collins wins' && !isGameCreator) || (RESULT[finalResult] == 'Charles wins' && isGameCreator)) {
         console.log(`You lost the game :( Better luck next time!\n`);
     } else {
         console.log(`Game ends in a draw!\n`);
     }
 };
 
-const part = isGameCreator ? ctc.p.Erin : ctc.p.Lola;
+const part = isGameCreator ? ctc.p.Collins : ctc.p.Charles;
 await part(interact);
 
 const balanceAfter = await getBalance();

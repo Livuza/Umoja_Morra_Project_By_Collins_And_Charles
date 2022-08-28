@@ -14,9 +14,9 @@ reach.setWalletFallback(reach.walletFallback({
 
 const fingersToInt = {'ZERO': 0, 'ONE': 1, 'TWO': 2, 'THREE': 3, 'FOUR': 4, 'FIVE': 5};
 const guessToInt = {'ZERO': 0, 'ONE': 1, 'TWO': 2, 'THREE': 3, 'FOUR': 4, 'FIVE': 5, 'SIX': 6, 'SEVEN': 7, 'EIGHT': 8, 'NINE': 9, 'TEN': 10}
-const intToOutcome = ['Erin wins', 'Lola wins', 'Draw'];
+const intToOutcome = ['Collins wins', 'Charles wins', 'Draw'];
 const {standardUnit} = reach;
-const defaults = {defaultFundAmt: '10', defaultWager: '5', standardUnit};
+const defaults = {defaultFundAmt: '10', defaultWager: '1', standardUnit};
 
 class App extends React.Component {
   constructor(props) {
@@ -77,7 +77,7 @@ class Deployer extends Player {
     this.setState({view: 'Deploying', ctc});
     this.wager = reach.parseCurrency(this.state.wager); // UInt
     this.deadline = {ETH: 10, ALGO: 100, CFX: 1000}[reach.connector]; // UInt
-    backend.Erin(ctc, this);
+    backend.Collins(ctc, this);
     const ctcInfoStr = JSON.stringify(await ctc.getInfo(), null, 2);
     this.setState({view: 'WaitingForAttacher', ctcInfoStr});
   }
@@ -92,9 +92,9 @@ class Attacher extends Player {
   attach(ctcInfoStr) {
     const ctc = this.props.acc.contract(backend, JSON.parse(ctcInfoStr));
     this.setState({view: 'Attaching'});
-    backend.Lola(ctc, this);
+    backend.Charles(ctc, this);
   }
-  async acceptWager(wagerAtomic) { // Fun([UInt], Null)
+  async acceptWager(wagerAtomic) {
     const wager = reach.formatCurrency(wagerAtomic, 4);
     return await new Promise(resolveAcceptedP => {
       this.setState({view: 'AcceptTerms', wager, resolveAcceptedP});

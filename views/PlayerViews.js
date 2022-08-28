@@ -2,14 +2,35 @@ import React from 'react';
 
 const exports = {};
 
+exports.Timeout = class extends React.Component {
+  render() {
+    return (
+      <div>
+        Timeout (Someone took too long)
+      </div>
+    );
+  }
+}
+
+exports.WaitingForResults = class extends React.Component {
+  render() {
+    return (
+      <div>
+        Waiting for results... Be patient and enjoy the music
+      </div>
+    );
+  }
+}
+
+
 exports.GetFingers = class extends React.Component {
   render() {
     const {parent, playable, fingers} = this.props;
     return (
       <div>
-        {fingers ? 'It was a draw, play again! Throw some fingers:' : 'How many fingers do you want to throw?'}
+        {fingers ? 'Game ended as a draw, play again! Choose fingers to throw:' : 'Choose amount of finger to throw?'}
         <br />
-        {!playable ? 'Please wait...' : ''}
+        {!playable ? 'Please wait... while loading' : ''}
         <br />
         <button
             className='choice-button'
@@ -51,9 +72,9 @@ exports.GetGuess = class extends React.Component {
     const {parent, playable, guess} = this.props;
     return (
       <div>
-        How many fingers do you think there will be in total?
+        Guess the total amount of Fingers?
         <br />
-        {!playable ? 'Please wait...' : ''}
+        {!playable ? 'Please wait... while loading' : ''}
         <br />
         <button
             className='choice-button'
@@ -115,33 +136,13 @@ exports.GetGuess = class extends React.Component {
   }
 }
 
-exports.WaitingForResults = class extends React.Component {
-  render() {
-    return (
-      <div>
-        Waiting for results...
-      </div>
-    );
-  }
-}
-
 exports.Done = class extends React.Component {
   render() {
     const {outcome} = this.props;
     return (
       <div>
         Thank you for playing!
-        <br /><b>Game result: {outcome || 'Unknown'}</b>
-      </div>
-    );
-  }
-}
-
-exports.Timeout = class extends React.Component {
-  render() {
-    return (
-      <div>
-        Timeout (Someone took too long)
+        <br /><b>This the outcome: {outcome || 'Unknown'}</b>
       </div>
     );
   }

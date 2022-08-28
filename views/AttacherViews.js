@@ -8,7 +8,7 @@ exports.Wrapper = class extends React.Component {
     const {content} = this.props;
     return (
       <div className="Attacher">
-        <h2>Attacher: Lola</h2>
+        <h2>Charles is the Attacher</h2>
         {content}
       </div>
     );
@@ -21,10 +21,10 @@ exports.Attach = class extends React.Component {
     const {ctcInfoStr} = this.state || {};
     return (
       <div>
-        Please paste the contract info to attach to:
+        Please paste the contract information to attach now:
         <br />
         <textarea spellCheck="false"
-          className='ContractInfo'
+          className='contract_details'
           onChange={(e) => this.setState({ctcInfoStr: e.currentTarget.value})}
           placeholder='{}'
         />
@@ -42,7 +42,7 @@ exports.Attaching = class extends React.Component {
   render() {
     return (
       <div>
-        Attaching, please wait...
+        Attaching in progress, please wait...
       </div>
     );
   }
@@ -63,7 +63,7 @@ exports.AcceptTerms = class extends React.Component {
             this.setState({disabled: true});
             parent.termsAccepted();
           }}
-        >Accept terms and pay wager</button>
+        >Do you Accept terms?</button>
       </div>
     );
   }
@@ -74,7 +74,7 @@ exports.WaitingForTurn = class extends React.Component {
     return (
       <div>
         Waiting for the other player...
-        <br />Think about what you will play/guess
+        <br />Think about what you will play and guess what your opponent will play
       </div>
     );
   }

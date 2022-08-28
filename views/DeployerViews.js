@@ -10,7 +10,7 @@ exports.Wrapper = class extends React.Component {
     const {content} = this.props;
     return (
       <div className="Deployer">
-        <h2>Deployer: Erin</h2>
+        <h2>Collins is the Deployer</h2>
         {content}
       </div>
     );
@@ -31,7 +31,7 @@ exports.SetWager = class extends React.Component {
         <br />
         <button
           onClick={() => parent.setWager(wager)}
-        >Set wager</button>
+        >What is your wager?</button>
       </div>
     );
   }
@@ -46,7 +46,7 @@ exports.Deploy = class extends React.Component {
         <br />
         <button
           onClick={() => parent.deploy()}
-        >Deploy</button>
+        >DO you want to Deploy?</button>
       </div>
     );
   }
@@ -69,21 +69,20 @@ exports.WaitingForAttacher = class extends React.Component {
     button.disabled = true;
     await sleep(1000);
     button.innerHTML = origInnerHTML;
-    button.disabled = false;
   }
 
   render() {
     const {ctcInfoStr} = this.props;
     return (
       <div>
-        Waiting for Attacher to join...
+        Waiting for Attacher...
         <br /> Please give them this contract info:
-        <pre className='ContractInfo'>
+        <pre className='contract_details'>
           {ctcInfoStr}
         </pre>
         <button
           onClick={(e) => this.copyToClipboard(e.currentTarget)}
-        >Copy to clipboard</button>
+        >Copy Contract and share to the Attacher</button>
       </div>
     )
   }
